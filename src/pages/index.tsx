@@ -1,79 +1,38 @@
-import { useState } from "react";
+import { FocusEventHandler, useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/tauri";
-import Image from "next/image";
-import reactLogo from "../assets/react.svg";
-import tauriLogo from "../assets/tauri.svg";
-import nextLogo from "../assets/next.svg";
 
 const App = () => {
-  const [greetMsg, setGreetMsg] = useState("");
-  const [name, setName] = useState("");
+  const [paths, setPaths] = useState<any[]>([]);
 
-  async function greet() {
-    setGreetMsg(await invoke("greet", { name }));
-  }
+  const getPaths = async (dirname: string) => {
+    const data: any[] = await invoke("read", { dirname });
+    setPaths(data);
+  };
 
   return (
-    <div className="container">
-      <h1>Welcome to Tauri!</h1>
-
-      <div className="row">
-        <span className="logos">
-          <a href="https://nextjs.org" target="_blank">
-            <Image
-              width={144}
-              height={144}
-              src={nextLogo}
-              className="logo next"
-              alt="Next logo"
-            />
-          </a>
-        </span>
-        <span className="logos">
-          <a href="https://tauri.app" target="_blank">
-            <Image
-              width={144}
-              height={144}
-              src={tauriLogo}
-              className="logo tauri"
-              alt="Tauri logo"
-            />
-          </a>
-        </span>
-        <span className="logos">
-          <a href="https://reactjs.org" target="_blank">
-            <Image
-              width={144}
-              height={144}
-              src={reactLogo}
-              className="logo react"
-              alt="React logo"
-            />
-          </a>
-        </span>
-      </div>
-
-      <p>Click on the Tauri, Next, and React logos to learn more.</p>
-
-      <div className="row">
-        <div>
-          <input
-            id="greet-input"
-            onChange={(e) => setName(e.currentTarget.value)}
-            placeholder="Enter a name..."
-          />
-          <button
-            type="button"
-            onClick={() => {
-              greet();
-            }}
-          >
-            Greet
-          </button>
-        </div>
-      </div>
-
-      <p>{greetMsg}</p>
+    <div className="flex flex-col p-10 justify-center">
+      <input
+        type="text"
+        className="flex-1 self-center bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+        placeholder="path"
+        onBlur={(e: any) => {
+          getPaths(e.target.value);
+        }}
+        onKeyPress={(e: any) => {
+          if (e.key === "Enter") {
+            getPaths(e.target.value);
+          }
+        }}
+      />
+      <ul className="flex-1">
+        {paths.map((path) => {
+          return (
+            <li className="p-3 mt-4 rounded-md bg-violet-800 text-white">
+              {path}
+            </li>
+          );
+        })}
+      </ul>
     </div>
   );
 };
